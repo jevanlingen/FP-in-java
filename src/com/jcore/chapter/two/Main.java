@@ -1,7 +1,11 @@
-package com.jcore;
+package com.jcore.chapter.two;
 
-public class ChapterTwo {
-	static final ƒ<Integer, Integer> factorial = n -> n <= 1 ? n : n * ChapterTwo.factorial.apply(n - 1);
+import com.jcore.BinaryOperator;
+import com.jcore.Tuple;
+import com.jcore.ƒ;
+
+public class Main {
+	static final ƒ<Integer, Integer> factorial = n -> n <= 1 ? n : n * Main.factorial.apply(n - 1);
 
 	public static void main(String[] args) {
 		final ƒ<Integer, Integer> triple = x -> x * 3;
