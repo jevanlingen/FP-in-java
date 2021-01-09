@@ -1,4 +1,4 @@
 package com.jcore;
 
-public interface BinaryOperator extends Function<Integer, Function<Integer, Integer>> {
+public interface BinaryOperator extends ƒ<Integer, ƒ<Integer, Integer>> {
 }
