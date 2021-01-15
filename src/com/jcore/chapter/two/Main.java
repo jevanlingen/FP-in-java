@@ -1,8 +1,7 @@
 package com.jcore.chapter.two;
 
-import com.jcore.BinaryOperator;
-import com.jcore.Tuple;
-import com.jcore.ƒ;
+import com.jcore.lib.model.Tuple;
+import com.jcore.lib.ƒ;
 
 public class Main {
 	static final ƒ<Integer, Integer> factorial = n -> n <= 1 ? n : n * Main.factorial.apply(n - 1);
@@ -10,10 +9,7 @@ public class Main {
 	public static void main(String[] args) {
 		final ƒ<Integer, Integer> triple = x -> x * 3;
 		final ƒ<Integer, Integer> square = x -> x * x;
-		final ƒ<Integer, ƒ<Integer, Integer>> addOld = x -> y -> x + y;
-		final BinaryOperator add = x -> y -> x + y;
-
-		new Tuple<>(null, null);
+		final ƒ<Integer, ƒ<Integer, Integer>> add = x -> y -> x + y;
 
 		ƒ<ƒ<Integer, Integer>,
 				ƒ<ƒ<Integer, Integer>, ƒ<Integer, Integer>>> integerCompose =

@@ -1,4 +1,4 @@
-package com.jcore;
+package com.jcore.lib.model;
 
 import java.util.Objects;
 

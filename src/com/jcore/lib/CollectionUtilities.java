@@ -1,4 +1,4 @@
-package com.jcore.chapter.three;
+package com.jcore.lib;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
@@ -6,9 +6,9 @@ import static java.util.Collections.singletonList;
 import static java.util.Collections.unmodifiableList;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-import com.jcore.ƒ;
+import java.util.function.Consumer;
 
 public class CollectionUtilities {
 	public static <T> List<T> list() {
@@ -82,6 +82,34 @@ public class CollectionUtilities {
 	public static <T> List<T> reverse(final List<T> ts) {
 		return foldLeft(ts, list(), x -> y -> prepend(y, x));
 		//return foldRight(ts, list(), x -> y -> append(y, x));
+	}
+
+	public static <T> void forEach(final Collection<T> ts, final Consumer<T> e) {
+		for (T t : ts) {
+			e.accept(t);
+		}
+	}
+
+	public static List<Integer> range(int start, int end) {
+		return unfold(start, x -> x + 1, x -> x < end);
+	}
+
+	public static List<Integer> rangeRecursive(int start, int end) {
+		return start <= end
+				? prepend(start, range(start + 1, end))
+				: list();
+	}
+
+	public static <T> List<T> unfold(final T seed, final ƒ<T, T> f, final ƒ<T, Boolean> predicate) {
+		List<T> result = list();
+
+		T temp = seed;
+		while (predicate.apply(temp)) {
+			result = append(result, temp);
+			temp = f.apply(temp);
+		}
+
+		return result;
 	}
 
 	/*

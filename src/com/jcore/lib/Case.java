@@ -1,8 +1,9 @@
-package com.jcore.chapter.three;
+package com.jcore.lib;
 
 import java.util.function.Supplier;
 
-import com.jcore.Tuple;
+import com.jcore.chapter.three.Result;
+import com.jcore.lib.model.Tuple;
 
 public class Case<T> extends Tuple<Supplier<Boolean>, Supplier<Result<T>>> {
 

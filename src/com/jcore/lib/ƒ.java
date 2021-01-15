@@ -1,5 +1,6 @@
-package com.jcore;
+package com.jcore.lib;
 
+import java.util.Objects;
 import java.util.function.Function;
 
 public interface ƒ<T, R> extends Function<T,R> {
@@ -25,5 +26,15 @@ public interface ƒ<T, R> extends Function<T,R> {
 
 	static <T, U, V> ƒ<ƒ<T, U>, ƒ<ƒ<U, V>, ƒ<T, V>>> higherAndThen() {
 		return x -> y -> z -> y.apply(x.apply(z));
+	}
+
+	default <V> ƒ<V, R> compose(ƒ<? super V, ? extends T> before) {
+		Objects.requireNonNull(before);
+		return (V v) -> apply(before.apply(v));
+	}
+
+	default <V> ƒ<T, V> andThen(ƒ<? super R, ? extends V> after) {
+		Objects.requireNonNull(after);
+		return (T t) -> after.apply(apply(t));
 	}
 }

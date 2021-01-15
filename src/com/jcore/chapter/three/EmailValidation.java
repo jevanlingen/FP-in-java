@@ -1,13 +1,13 @@
 package com.jcore.chapter.three;
 
 import static com.jcore.chapter.three.Result.*;
-import static com.jcore.chapter.three.Case.match;
-import static com.jcore.chapter.three.Case.mcase;
+import static com.jcore.lib.Case.match;
+import static com.jcore.lib.Case.mcase;
 
 import java.util.function.Consumer;
 import java.util.regex.Pattern;
 
-import com.jcore.ƒ;
+import com.jcore.lib.ƒ;
 
 public class EmailValidation {
 	static Pattern emailPattern = Pattern.compile("^[a-z0-9._%+-]+@[a-z0-9.-]+\\.[a-z]{2,4}$");
