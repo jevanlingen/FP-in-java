@@ -24,11 +24,11 @@ public class Curry {
 		System.out.println("----------------");
 
 		createCurry()
-			.apply(new Meat(Duration.ofMinutes(5)))
-			.apply(new Onion(Duration.ofMinutes(5)))
-			.apply(new Spices(Duration.ofSeconds(30)))
-			.apply(Duration.ofMinutes(5))
-			.apply(Duration.ofMinutes(5));
+				.apply(new Meat(Duration.ofMinutes(5)))
+				.apply(new Onion(Duration.ofMinutes(5)))
+				.apply(new Spices(Duration.ofSeconds(30)))
+				.apply(Duration.ofMinutes(5))
+				.apply(Duration.ofMinutes(5));
 
 		System.out.println("----------------");
 
