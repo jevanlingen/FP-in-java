@@ -11,6 +11,6 @@ public class Spices {
 
 	@Override
 	public String toString() {
-		return "Bloom the spices (" + preparationTime.toMinutes() + " minutes)";
+		return "Bloom the spices (" + preparationTime.toSeconds() + " seconds)";
 	}
 }
