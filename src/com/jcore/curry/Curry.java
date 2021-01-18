@@ -2,6 +2,7 @@ package com.jcore.curry;
 
 import java.time.Duration;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import com.jcore.curry.model.Meat;
 import com.jcore.curry.model.Onion;
@@ -28,7 +29,7 @@ public class Curry {
 				.apply(new Onion(Duration.ofMinutes(5)))
 				.apply(new Spices(Duration.ofSeconds(30)))
 				.apply(Duration.ofMinutes(5))
-				.apply(Duration.ofMinutes(5));
+				.apply(Duration.ofMinutes(8));
 
 		System.out.println("----------------");
 
@@ -37,9 +38,20 @@ public class Curry {
 				.apply(new Onion(Duration.ofMinutes(5)))
 				.apply(new Spices(Duration.ofSeconds(30)))
 				.apply(Duration.ofMinutes(5))
-				.accept(Duration.ofMinutes(5));
+				.accept(Duration.ofMinutes(8));
 
 		System.out.println("----------------");
+
+		final ƒ<Duration, Void> unfinishedCurry = createCurry()
+				.apply(new Meat(Duration.ofMinutes(5)))
+				.apply(new Onion(Duration.ofMinutes(5)))
+				.apply(new Spices(Duration.ofSeconds(30)))
+				.apply(Duration.ofMinutes(5));
+
+		IntStream.rangeClosed(5, 10).forEach(i -> {
+			unfinishedCurry.apply(Duration.ofMinutes(i));
+			System.out.println("----------------");
+		});
 	}
 
 	private static int add(int a, int b) {
