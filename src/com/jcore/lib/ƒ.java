@@ -37,4 +37,8 @@ public interface ƒ<T, R> extends Function<T,R> {
 		Objects.requireNonNull(after);
 		return (T t) -> after.apply(apply(t));
 	}
+
+	static <T> ƒ<T, T> identity() {
+		return t -> t;
+	}
 }

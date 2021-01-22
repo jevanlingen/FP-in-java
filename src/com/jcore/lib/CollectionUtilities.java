@@ -1,5 +1,7 @@
 package com.jcore.lib;
 
+import static com.jcore.lib.model.TailCall.ret;
+import static com.jcore.lib.model.TailCall.sus;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
 import static java.util.Collections.singletonList;
@@ -9,6 +11,8 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
+
+import com.jcore.lib.model.TailCall;
 
 public class CollectionUtilities {
 	public static <T> List<T> list() {
@@ -95,9 +99,13 @@ public class CollectionUtilities {
 	}
 
 	public static List<Integer> rangeRecursive(int start, int end) {
+		return rangeRecursive_(start, end, list()).eval();
+	}
+
+	public static TailCall<List<Integer>> rangeRecursive_(int start, int end, List<Integer> acc) {
 		return start <= end
-				? prepend(start, range(start + 1, end))
-				: list();
+				? ret(list())
+				: sus(() -> rangeRecursive_(start + 1, end, append(acc, start)));
 	}
 
 	public static <T> List<T> unfold(final T seed, final ƒ<T, T> f, final ƒ<T, Boolean> predicate) {
@@ -112,11 +120,40 @@ public class CollectionUtilities {
 		return result;
 	}
 
-	/*
-		@implNote: Don't use this function on large list, as it will throw a stackoverflow
-	 */
+	public static <T, U> U foldLeftRecursive(final List<T> ts, final U identity, final ƒ<U,  ƒ<T, U>> f) {
+		return foldLeftRecursive_(ts, identity, f).eval();
+	}
+
+	public static <T, U> TailCall<U> foldLeftRecursive_(final List<T> ts, final U identity, final ƒ<U,  ƒ<T, U>> f) {
+		return ts.isEmpty()
+				? ret(identity)
+				: sus(() -> foldLeftRecursive_(tail(ts), f.apply(identity).apply(head(ts)), f));
+	}
+
 	public static <T, U> U foldRightRecursive(final List<T> ts, final U identity, final ƒ<T,  ƒ<U, U>> f) {
-		return ts.isEmpty() ? identity : f.apply(head(ts)).apply(foldRightRecursive(tail(ts), identity, f));
+		return foldRightRecursive_(reverse(ts), f, identity).eval();
+	}
+
+	public static <T, U> TailCall<U> foldRightRecursive_(final List<T> ts, final ƒ<T,  ƒ<U, U>> f, U acc) {
+		return ts.isEmpty()
+				? ret(acc)
+				: sus(() -> foldRightRecursive_(tail(ts), f, f.apply(head(ts)).apply(acc)));
+	}
+
+	public static <T> ƒ<T, T> composeAllViaFoldLeft(List<ƒ<T, T>> list) {
+		return x -> foldLeft(reverse(list), x, a -> b -> b.apply(a));
+	}
+
+	public static <T> ƒ<T, T> composeAllViaFoldRight(List<ƒ<T, T>> list) {
+		return x -> foldRight(list, x, a -> a::apply);
+	}
+
+	public static <T> ƒ<T, T> andThenAllViaFoldLeft(List<ƒ<T, T>> list) {
+		return x -> foldLeft(list, x, a -> b -> b.apply(a));
+	}
+
+	public static <T> ƒ<T, T> andThenAllViaFoldRight(List<ƒ<T, T>> list) {
+		return x -> foldRight(reverse(list), x, a -> a::apply);
 	}
 
 	private static <T> List<T> copy(final List<T> list) {

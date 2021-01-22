@@ -1,4 +1,4 @@
-package com.jcore.chapter.four;
+package com.jcore.lib.model;
 
 import java.util.function.Supplier;
 

@@ -7,9 +7,15 @@ public class Main {
 	static final ƒ<Integer, Integer> factorial = n -> n <= 1 ? n : n * Main.factorial.apply(n - 1);
 
 	public static void main(String[] args) {
+		final ƒ<Integer, Integer> twice = e -> e * 2;
 		final ƒ<Integer, Integer> triple = x -> x * 3;
 		final ƒ<Integer, Integer> square = x -> x * x;
 		final ƒ<Integer, ƒ<Integer, Integer>> add = x -> y -> x + y;
+
+		System.out.println(twice.compose(square).apply(4));
+		System.out.println(triple.compose(square).apply(3));
+		System.out.println(twice.andThen(square).apply(4));
+		System.out.println(twice.andThen(square).andThen(triple).apply(4));
 
 		ƒ<ƒ<Integer, Integer>,
 				ƒ<ƒ<Integer, Integer>, ƒ<Integer, Integer>>> integerCompose =
