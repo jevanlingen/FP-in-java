@@ -3,7 +3,6 @@ package com.jcore.lib.model;
 import static com.jcore.lib.model.TailCall.ret;
 import static com.jcore.lib.model.TailCall.sus;
 
-import com.jcore.lib.StackBasedTailRec;
 import com.jcore.lib.ƒ;
 
 public abstract class List<E> {
@@ -25,6 +24,16 @@ public abstract class List<E> {
 	public abstract List<E> init();
 
 	public abstract List<E> reverse();
+
+	public abstract <B> List<B> map(ƒ<E, B> f);
+
+	public abstract <B> List<B> flatMap(ƒ<E, List<B>> f);
+
+	public abstract List<E> filter(ƒ<E, Boolean> f);
+
+	public abstract <B> B foldLeft(B identity, ƒ<B, ƒ<E, B>> f);
+
+	public abstract <B> B foldRight(B identity, ƒ<E, ƒ<B, B>> f);
 
 	private List() {
 	}
@@ -59,7 +68,7 @@ public abstract class List<E> {
 	}
 
 	public int length() {
-		return foldRight(this, 0, x -> y -> y + 1);
+		return foldLeft(0, x -> y -> x + 1);
 	}
 
 	@Override
@@ -105,6 +114,31 @@ public abstract class List<E> {
 		@Override
 		public List<E> reverse() {
 			return this;
+		}
+
+		@Override
+		public <B> List<B> map(ƒ<E, B> f) {
+			return list();
+		}
+
+		@Override
+		public <B> List<B> flatMap(ƒ<E, List<B>> f) {
+			return list();
+		}
+
+		@Override
+		public List<E> filter(ƒ<E, Boolean> f) {
+			return list();
+		}
+
+		@Override
+		public <B> B foldLeft(B identity, ƒ<B, ƒ<E, B>> f) {
+			return identity;
+		}
+
+		@Override
+		public <B> B foldRight(B identity, ƒ<E, ƒ<B, B>> f) {
+			return identity;
 		}
 	}
 
@@ -152,6 +186,43 @@ public abstract class List<E> {
 					? ret(acc)
 					: sus(() -> reverse_(new Cons<>(list.head(), acc), list.tail()));
 		}
+
+		@Override
+		public <B> List<B> map(ƒ<E, B> f) {
+			return foldRight(list(), h -> t -> t.cons(f.apply(h)));
+		}
+
+		@Override
+		public <B> List<B> flatMap(ƒ<E, List<B>> f) {
+			return foldRight(list(), h -> t -> concat(f.apply(h), t));
+		}
+
+		@Override
+		public List<E> filter(ƒ<E, Boolean> f) {
+			return foldRight(list(), h -> t -> f.apply(h) ? t.cons(h) : t);
+		}
+
+		@Override
+		public <B> B foldLeft(B identity, ƒ<B, ƒ<E, B>> f) {
+			return foldLeft_(this, identity, f).eval();
+		}
+
+		public <E, B> TailCall<B> foldLeft_(List<E> list, B acc, ƒ<B, ƒ<E, B>> f) {
+			return list.isEmpty()
+					? ret(acc)
+					: sus(() -> foldLeft_(list.tail(), f.apply(acc).apply(list.head()), f));
+		}
+
+		@Override
+		public <B> B foldRight(B identity, ƒ<E, ƒ<B, B>> f) {
+			return foldRight_(this.reverse(), identity, f).eval();
+		}
+
+		public <E, B> TailCall<B> foldRight_(List<E> list, B acc, ƒ<E, ƒ<B, B>> f) {
+			return list.isEmpty()
+					? ret(acc)
+					: sus(() -> foldRight_(list.tail(), f.apply(list.head()).apply(acc), f));
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -169,13 +240,11 @@ public abstract class List<E> {
 	}
 
 	public static <E> List<E> concat(List<E> list1, List<E> list2) {
-		return foldRight(list1, list2, x -> y -> y.cons(x));
+		return list1.foldRight(list2, x -> y -> y.cons(x));
 	}
 
-	@StackBasedTailRec
-	public static <E, B> B foldRight(List<E> list, B identity, ƒ<E, ƒ<B, B>> f) {
-		return list.isEmpty()
-				? identity
-				: f.apply(list.head()).apply(foldRight(list.tail(), identity, f));
+	public static <E> List<E> flatten(List<List<E>> list) {
+		return list.flatMap(x -> x);
+		//return list.foldLeft(list(), x -> y -> concat(x, y));
 	}
 }
