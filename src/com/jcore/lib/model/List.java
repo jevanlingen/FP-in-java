@@ -17,6 +17,9 @@ public abstract class List<E> {
 
 	public abstract boolean isEmpty();
 
+	// [1, NIL]
+
+
 	/**
 	 * Drop last element
 	 * @return
