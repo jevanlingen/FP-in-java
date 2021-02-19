@@ -3,6 +3,14 @@ package com.jcore.lib;
 import java.util.Objects;
 import java.util.function.Function;
 
+/**
+ * Represents a function that accepts one argument and produces a result.
+ * This is a functional interface whose functional method is apply(Object).
+ *
+ * @param <T> the type of the input to the function
+ * @param <R> the type of the result of the function
+ */
+@FunctionalInterface
 public interface ƒ<T, R> extends Function<T,R> {
 	static <T, U, V> ƒ<V, U> compose(ƒ<T, U> f, ƒ<V, T> g) {
 		return x -> f.apply(g.apply(x));

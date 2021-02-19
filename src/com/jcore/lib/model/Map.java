@@ -3,7 +3,7 @@ package com.jcore.lib.model;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import com.jcore.lib.Ø;
+import com.jcore.lib.Œ;
 
 public class Map<T, U> {
 	private final ConcurrentMap<T,U> map = new ConcurrentHashMap<>();
@@ -17,10 +17,10 @@ public class Map<T, U> {
 		return m;
 	}
 
-	public Ø<U> get(final T t) {
+	public Œ<U> get(final T t) {
 		return this.map.containsKey(t)
-				? Ø.some(this.map.get(t))
-				: Ø.none();
+				? Œ.success(this.map.get(t))
+				: Œ.empty();
 	}
 
 	public Map<T, U> put(final T t, final U u) {

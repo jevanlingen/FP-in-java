@@ -7,9 +7,16 @@ import java.util.function.Supplier;
 
 import com.jcore.lib.model.List;
 
+/**
+ * Option class, holds either a value or nothing.
+ *
+ * @param <A> The value
+ */
 public abstract class Ø<A> {
 	@SuppressWarnings("rawtypes")
 	private static final Ø none = new None();
+
+	private Ø() {}
 
 	public abstract A getOrElse(Supplier<A> defaultValue);
 

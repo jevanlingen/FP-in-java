@@ -2,7 +2,15 @@ package com.jcore.lib;
 
 import java.util.function.Supplier;
 
+/**
+ * Either class, holds either left or right value.
+ *
+ * @param <E> The left value
+ * @param <A> The right value
+ */
 public abstract class Ê<E, A> {
+	private Ê() {}
+
 	public abstract A getOrElse(Supplier<A> defaultValue);
 
 	public abstract <B> Ê<E, B> map(ƒ<A, B> f);
