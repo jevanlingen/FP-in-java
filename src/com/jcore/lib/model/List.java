@@ -3,6 +3,7 @@ package com.jcore.lib.model;
 import static com.jcore.lib.model.TailCall.ret;
 import static com.jcore.lib.model.TailCall.sus;
 
+import com.jcore.lib.Œ;
 import com.jcore.lib.ƒ;
 
 public abstract class List<E> {
@@ -11,7 +12,11 @@ public abstract class List<E> {
 
 	public abstract E head();
 
+	public abstract Œ<E> headOption();
+
 	public abstract List<E> setHead(E e);
+
+	public abstract Œ<E> lastOption();
 
 	public abstract List<E> tail();
 
@@ -19,9 +24,9 @@ public abstract class List<E> {
 
 	// [1, NIL]
 
-
 	/**
 	 * Drop last element
+	 *
 	 * @return
 	 */
 	public abstract List<E> init();
@@ -38,11 +43,14 @@ public abstract class List<E> {
 
 	public abstract <B> B foldRight(B identity, ƒ<E, ƒ<B, B>> f);
 
+	public abstract int lengthMemoized();
+
 	private List() {
 	}
 
 	/**
 	 * Add element at the beginning
+	 *
 	 * @param e
 	 * @return
 	 */
@@ -95,8 +103,18 @@ public abstract class List<E> {
 		}
 
 		@Override
+		public Œ<E> headOption() {
+			return Œ.empty();
+		}
+
+		@Override
 		public List<E> setHead(E a) {
 			throw new IllegalStateException("You cannot call setHead on an empty list");
+		}
+
+		@Override
+		public Œ<E> lastOption() {
+			return Œ.empty();
 		}
 
 		@Override
@@ -143,15 +161,22 @@ public abstract class List<E> {
 		public <B> B foldRight(B identity, ƒ<E, ƒ<B, B>> f) {
 			return identity;
 		}
+
+		@Override
+		public int lengthMemoized() {
+			return 0;
+		}
 	}
 
 	private static class Cons<E> extends List<E> {
 		private final E head;
 		private final List<E> tail;
+		private final int length;
 
 		private Cons(final E head, final List<E> tail) {
 			this.head = head;
 			this.tail = tail;
+			this.length = tail.length() + 1;
 		}
 
 		@Override
@@ -160,8 +185,18 @@ public abstract class List<E> {
 		}
 
 		@Override
+		public Œ<E> headOption() {
+			return Œ.success(head);
+		}
+
+		@Override
 		public List<E> setHead(E a) {
 			return new Cons<>(a, this.tail());
+		}
+
+		@Override
+		public Œ<E> lastOption() {
+			return foldLeft(Œ.empty(), t -> Œ::success);
 		}
 
 		@Override
@@ -226,6 +261,11 @@ public abstract class List<E> {
 					? ret(acc)
 					: sus(() -> foldRight_(list.tail(), f.apply(list.head()).apply(acc), f));
 		}
+
+		@Override
+		public int lengthMemoized() {
+			return length;
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -249,5 +289,9 @@ public abstract class List<E> {
 	public static <E> List<E> flatten(List<List<E>> list) {
 		return list.flatMap(x -> x);
 		//return list.foldLeft(list(), x -> y -> concat(x, y));
+	}
+
+	public static <E> List<E> flattenResult(List<Œ<E>> list) {
+		return list.foldRight(list(), x -> y -> x.map(y::cons).getOrElse(y));
 	}
 }
