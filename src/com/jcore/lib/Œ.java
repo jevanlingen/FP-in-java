@@ -2,7 +2,10 @@ package com.jcore.lib;
 
 import java.io.Serializable;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Supplier;
+
+import com.jcore.chapter.three.Result;
 
 /**
  * Result class, holds either a value or a exception.
@@ -47,8 +50,20 @@ public abstract class Œ<V> implements Serializable {
 				: failure(errorMessage));
 	}
 
-	public Boolean exists(final ƒ<V, Boolean> f) {
+	public boolean isSuccess() {
+		return exists(a -> true);
+	}
+
+	public boolean exists(final ƒ<V, Boolean> f) {
 		return map(f).getOrElse(false);
+	}
+
+	public static <A, B, C> Œ<C> map2(final Œ<A> a, final Œ<B> b,final ƒ<A, ƒ<B, C>> f) {
+		return lift2(f).apply(a).apply(b);
+	}
+
+	public static <A, B, C> ƒ<Œ<A>, ƒ<Œ<B>, Œ<C>>> lift2(final ƒ<A, ƒ<B, C>> f) {
+		return a -> b -> a.map(f).flatMap(b::map);
 	}
 
 	private static class Empty<V> extends Œ<V> {

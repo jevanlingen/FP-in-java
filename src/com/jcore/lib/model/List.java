@@ -59,38 +59,57 @@ public abstract class List<E> {
 	}
 
 	public List<E> drop(int n) {
-		return drop_(this, n).eval();
+		return _drop(this, n).eval();
 	}
 
-	private TailCall<List<E>> drop_(List<E> list, int n) {
+	private TailCall<List<E>> _drop(List<E> list, int n) {
 		return list.isEmpty() || n <= 0
 				? ret(list)
-				: sus(() -> drop_(list.tail(), n - 1));
+				: sus(() -> _drop(list.tail(), n - 1));
 	}
 
 	public List<E> dropWhile(ƒ<E, Boolean> f) {
-		return dropWhile_(this, f).eval();
+		return _dropWhile(this, f).eval();
 	}
 
-	private TailCall<List<E>> dropWhile_(List<E> list, ƒ<E, Boolean> f) {
+	private TailCall<List<E>> _dropWhile(List<E> list, ƒ<E, Boolean> f) {
 		return list.isEmpty() || !f.apply(list.head())
 				? ret(list)
-				: sus(() -> dropWhile_(list.tail(), f));
+				: sus(() -> _dropWhile(list.tail(), f));
+	}
+
+	public <A1, A2> Tuple<List<A1>, List<A2>> unzip(ƒ<E, Tuple<A1, A2>> f) {
+		return foldRight(new Tuple<>(list(), list()), x -> y -> {
+			final var t = f.apply(x);
+			return new Tuple<>(y._1.cons(t._1), y._2.cons(t._2));
+		});
 	}
 
 	public int length() {
 		return foldLeft(0, x -> y -> x + 1);
 	}
 
-	@Override
-	public String toString() {
-		return String.format("[%sNIL]", toString_(new StringBuilder(), this).eval());
+	public Œ<E> getAt(int index) {
+		return index < 0 || index >= length()
+				? Œ.failure("Index out of bounds")
+				: _getAt(this, index).eval();
 	}
 
-	private TailCall<StringBuilder> toString_(StringBuilder acc, List<E> list) {
+	public TailCall<Œ<E>> _getAt(List<E> list, int index) {
+		return index == 0
+				? ret(Œ.success(list.head()))
+				: sus(() -> _getAt(list.tail(), index - 1));
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%sNIL]", _toString(new StringBuilder(), this).eval());
+	}
+
+	private TailCall<StringBuilder> _toString(StringBuilder acc, List<E> list) {
 		return list.isEmpty()
 				? ret(acc)
-				: sus(() -> toString_(acc.append(list.head()).append(", "), list.tail()));
+				: sus(() -> _toString(acc.append(list.head()).append(", "), list.tail()));
 	}
 
 	private static class Nil<E> extends List<E> {
@@ -288,10 +307,40 @@ public abstract class List<E> {
 
 	public static <E> List<E> flatten(List<List<E>> list) {
 		return list.flatMap(x -> x);
-		//return list.foldLeft(list(), x -> y -> concat(x, y));
 	}
 
-	public static <E> List<E> flattenResult(List<Œ<E>> list) {
+	public static <E> List<E> filterSuccess(List<Œ<E>> list) {
 		return list.foldRight(list(), x -> y -> x.map(y::cons).getOrElse(y));
+	}
+
+	public static <E> List<Exception> filterFailure(List<Œ<E>> list) {
+		return list.foldRight(list(), x -> y -> x.forEachOrException(n -> {}).map(y::cons).getOrElse(y));
+	}
+
+	/**
+	 * @return Result with a list of all success objects or the first failure result
+	 */
+	public static <E> Œ<List<E>> sequence(List<Œ<E>> list) {
+		return list.foldRight(Œ.success(list()), x -> y -> Œ.map2(x, y, a -> b -> b.cons(a)));
+	}
+
+	public static <E> Œ<List<E>> sequenceAlternative(List<Œ<E>> list) {
+		return filterFailure(list).isEmpty()
+					? Œ.success(filterSuccess(list))
+					: Œ.failure(filterFailure(list).head());
+	}
+
+	public static <A, B, C> List<C> zipWith(List<A> list1, List<B> list2, ƒ<A, ƒ<B, C>> f) {
+		return _zipWith(list(), list1, list2, f).eval().reverse();
+	}
+
+	public static <A, B> Tuple<List<A>, List<B>> unzip(List<Tuple<A, B>> list) {
+		return list.foldRight(new Tuple<>(list(), list()), x -> y -> new Tuple<>(y._1.cons(x._1), y._2.cons(x._2)));
+	}
+
+	private static <A, B, C> TailCall<List<C>> _zipWith(List<C> acc, List<A> list1, List<B> list2, ƒ<A, ƒ<B, C>> f) {
+		return list1.isEmpty() || list2.isEmpty()
+				? ret(acc)
+				: sus(() -> _zipWith(acc.cons(f.apply(list1.head()).apply(list2.head())), list1.tail(), list2.tail(), f));
 	}
 }
