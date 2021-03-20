@@ -13,4 +13,9 @@ public class Tuple<T, U> {
 		this._1 = t;
 		this._2 = u;
 	}
+
+	@Override
+	public String toString() {
+		return "Tuple{" + "_1=" + _1 + ", _2=" + _2 + '}';
+	}
 }

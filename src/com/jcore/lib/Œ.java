@@ -50,7 +50,7 @@ public abstract class Œ<V> implements Serializable {
 				: failure(errorMessage));
 	}
 
-	public boolean isSuccess() {
+	public boolean exists() {
 		return exists(a -> true);
 	}
 

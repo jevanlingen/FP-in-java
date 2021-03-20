@@ -36,6 +36,14 @@ public abstract class Ø<A> {
 		return flatMap(x -> f.apply(x) ? this : none());
 	}
 
+	public boolean exists() {
+		return exists(a -> true);
+	}
+
+	public boolean exists(final ƒ<A, Boolean> f) {
+		return map(f).getOrElse(() -> false);
+	}
+
 	private static class None<A> extends Ø<A> {
 		private None() {
 		}
